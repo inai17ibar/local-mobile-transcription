@@ -110,15 +110,16 @@ final class WhisperHolder {
     var canPickFile: Bool { phase == .ready }
 
     func loadModel() async {
-        statusMessage = "Whisper モデルを準備中（初回は約1.5GB のダウンロード）..."
+        let modelName = WhisperKit.recommendedModels().default
+        statusMessage = "Whisper モデル「\(modelName)」を準備中（初回は DL あり）..."
         do {
-            let config = WhisperKitConfig(model: "large-v3-turbo")
+            let config = WhisperKitConfig(model: modelName)
             pipe = try await WhisperKit(config)
             phase = .ready
-            statusMessage = "準備完了。音声ファイルを選択してください。"
+            statusMessage = "準備完了: \(modelName)"
         } catch {
             phase = .error
-            statusMessage = "モデルのロードに失敗: \(error.localizedDescription)"
+            statusMessage = "モデル「\(modelName)」のロードに失敗: \(error.localizedDescription)"
         }
     }
 
