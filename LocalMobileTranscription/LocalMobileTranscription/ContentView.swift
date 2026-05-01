@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Observation
+import Combine
 import UniformTypeIdentifiers
 import WhisperKit
 
