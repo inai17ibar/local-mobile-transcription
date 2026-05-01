@@ -1,29 +1,29 @@
-# AGENTS.md — {{PROJECT_NAME}} AI エージェント向けインデックス
+# AGENTS.md — local-mobile-transcription AI エージェント向けインデックス
 
 > **このファイルは北極星（North Star）です。**
 > AI ツール（Claude / Copilot / Cursor）はこのファイルを起点にプロジェクトを把握します。
 > **このファイルを最初に読み、ここに書かれたルールと制約に従ってください。**
 
 > [!IMPORTANT]
-> **{{PROJECT_STATUS_NOTE}}**
-> 例: このプロジェクトはプロトタイプ・スペック・ファースト段階です。
-> {{EDIT_PHILOSOPHY}}
-> 例: 既存ファイルの破壊的変更をいとわない。より良い設計を根本から再考することを優先します。
+> **このプロジェクトは初期セットアップ段階です（スタックは ADR-002 で確定済み、実装は未着手）。**
+> 既存ファイル（AGENTS.md / ADR.md など）の破壊的変更をいとわない。
+> 仕様が固まるまでは ADR ドリブンで進め、決定前に実装に着手しない。
 
 ---
 
 ## 📋 プロジェクト概要
 
-**{{PROJECT_NAME}}** は、{{PROJECT_DESCRIPTION}}
+**local-mobile-transcription** は、iPhone(15 Pro 以降)上でローカル動作する音声文字起こしアプリ。会議の議事録を端末内で完結して残すことを目的とする。
 
-- **スタック**: {{TECH_STACK}}
-- **テストアセット**: {{TEST_ASSETS（例: `sample.glb` — 動作確認用）}}
-- **対象**: {{TARGET_AUDIENCE（例: 社内ツール / セミナー参加者 / 個人利用）}}
+- **スタック**: Swift / SwiftUI(iOS 17+) + WhisperKit(Whisper large-v3-turbo) + AVFoundation。詳細は ADR-002 を参照
+- **テストアセット**: 未配置（日本語会議の短尺サンプル音声を `tests/fixtures/` などに用意予定）
+- **対象**: 議事録を残したい個人・チーム（クラウドに音声を出せない要件のあるユース）
 
 現在の状態：
-- {{CURRENT_STATE_1（例: 仕様書の段階 / 実装済み）}}
-- {{CURRENT_STATE_2（例: フロントエンド骨格は実装済み）}}
-- **{{NEXT_TASK（例: バックエンド API 実装が次のタスク）}}**
+- ai-dev-template ベースのリポジトリスケルトンのみ存在（`.claude/commands/`, `.github/agents/`, `.github/instructions/`, `.github/prompts/`, `skills/`）
+- スタック選定は ADR-002 で承認済み
+- Xcode プロジェクト・Swift ソース・テストは未着手
+- **次のタスク: Xcode プロジェクト初期化（iOS 17+, SwiftUI, SwiftPM で WhisperKit 導入）← ここから始める**
 
 ---
 
@@ -66,18 +66,22 @@
 
 ## 📌 次のステップ
 
-1. **ADR.md を確認** — アーキテクチャ決定の方針が記載されています
-2. **{{NEXT_STEP_2（例: 初期スキャフォルド開始 — `@Plan` に構成を相談）}}**
-3. **{{NEXT_STEP_3（例: ADR.md に決定を記入）}}**
-4. **実装開始** — `@Implementer` を通じて決定に基づき実装
+1. **Xcode プロジェクト初期化**（iOS 17+ ターゲット、SwiftUI、Swift Package Manager で WhisperKit 導入）
+2. **モデル DL オンボーディング UX 実装**（ADR-003 — Wi-Fi 接続中に約 1.5GB を初回 DL、失敗時リトライ）
+3. **MVP 実装** — 録音(AVFoundation) → セグメント分割(30 秒〜1 分) → 逐次転写(WhisperKit) → テキスト保存
+4. **検証** — `@Verification` で実機(iPhone 15 Pro) 動作確認、1 時間音声でのメモリ・処理時間計測
+5. **将来 ADR 候補** — 話者識別アプローチ（VAD 簡易版 / sherpa-onnx 本格版）
 
 ---
 
 ## 🚫 絶対守るべき制約
 
-- {{CONSTRAINT_1（例: `dist/` は生成物 — 直接編集禁止）}}
-- {{CONSTRAINT_2（例: テストなしでの機能追加禁止）}}
-- {{CONSTRAINT_3（例: 外部 API キーをコードに直書き禁止）}}
+- **クロスプラットフォーム化禁止**: コア実装は Swift ネイティブ(ADR-002)。React Native / Flutter 等への切り替えは ADR 必須
+- **クラウド ASR 禁止**: 文字起こしは WhisperKit + AVFoundation のローカル処理に限定。OpenAI Whisper API / Google Speech-to-Text 等への切り替えは ADR 必須
+- **音声データの外部送信禁止**: 録音データ・文字起こし結果を外部サービス（解析・ログ・クラッシュレポートを含む）に送信する変更は ADR 必須
+- **メモリ前提**: 1 時間音声を一括処理しない。30 秒〜1 分のセグメント単位で逐次転写すること（iPhone 15 Pro 8GB RAM 制約）
+- **モデル同梱禁止**: Whisper モデルは WhisperKit Hub から初回 DL する方式（ADR-003）。アプリへの同梱・別経路 DL に切り替える変更は ADR 必須
+- スタック・アーキテクチャに関わる変更は ADR を経ること（仕様先行）
 
 ---
 
@@ -90,5 +94,5 @@
 
 ---
 
-**Last Updated**: {{DATE}}
+**Last Updated**: 2026-05-01
 **Version**: 2.0
