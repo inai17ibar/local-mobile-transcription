@@ -84,9 +84,11 @@
 ```sh
 xcodebuild -project LocalMobileTranscription/LocalMobileTranscription.xcodeproj \
   -scheme LocalMobileTranscription \
-  -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+  -destination 'generic/platform=iOS Simulator' \
   build
 ```
+
+`generic/platform=iOS Simulator` は インストール済みのいずれかの iOS Simulator を自動選択する。特定のシミュレータで実行する場合は `name=iPhone 17 Pro` 等に置き換える。
 
 実機検証は Xcode GUI で iPhone 15 Pro を接続 → ⌘R。Apple Developer 規約承認・Provisioning Profile が必要（`Signing & Capabilities` を参照）。
 
