@@ -8,6 +8,7 @@
 import SwiftUI
 import Observation
 import Combine
+import AVFoundation
 import UniformTypeIdentifiers
 import WhisperKit
 
@@ -41,24 +42,45 @@ struct ContentView: View {
     }
 
     private var statusBar: some View {
-        HStack(spacing: 8) {
-            if whisper.isBusy {
-                ProgressView().scaleEffect(0.8)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                if whisper.isBusy {
+                    ProgressView().scaleEffect(0.8)
+                }
+                Text(whisper.statusMessage)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                Spacer()
             }
-            Text(whisper.statusMessage)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            Spacer()
+            if whisper.phase == .transcribing && whisper.transcriptionProgress > 0 {
+                ProgressView(value: whisper.transcriptionProgress)
+                    .progressViewStyle(.linear)
+            }
         }
     }
 
     private var transcriptArea: some View {
         ScrollView {
-            Text(whisper.transcript.isEmpty ? "（ここに文字起こし結果が表示されます）" : whisper.transcript)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .textSelection(.enabled)
-                .foregroundStyle(whisper.transcript.isEmpty ? .secondary : .primary)
+            VStack(alignment: .leading, spacing: 12) {
+                if whisper.phase == .transcribing && !whisper.partialTranscript.isEmpty {
+                    Label("途中経過", systemImage: "ellipsis.bubble")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(whisper.partialTranscript)
+                        .foregroundStyle(.secondary)
+                        .italic()
+                }
+
+                if !whisper.transcript.isEmpty {
+                    Text(whisper.transcript)
+                        .textSelection(.enabled)
+                } else if whisper.phase != .transcribing {
+                    Text("（ここに文字起こし結果が表示されます）")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
         }
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -103,6 +125,8 @@ final class WhisperHolder {
     var phase: Phase = .loadingModel
     var statusMessage: String = "Whisper モデルを準備中..."
     var transcript: String = ""
+    var partialTranscript: String = ""
+    var transcriptionProgress: Double = 0
 
     @ObservationIgnored
     private var pipe: WhisperKit?
@@ -130,6 +154,8 @@ final class WhisperHolder {
         phase = .transcribing
         statusMessage = "文字起こしを実行中..."
         transcript = ""
+        partialTranscript = ""
+        transcriptionProgress = 0
 
         guard url.startAccessingSecurityScopedResource() else {
             statusMessage = "ファイルへのアクセス権限取得に失敗しました"
@@ -153,10 +179,40 @@ final class WhisperHolder {
 
         defer { try? FileManager.default.removeItem(at: tmpURL) }
 
+        let totalSeconds: Double
+        do {
+            let asset = AVURLAsset(url: tmpURL)
+            let duration = try await asset.load(.duration)
+            totalSeconds = CMTimeGetSeconds(duration)
+        } catch {
+            totalSeconds = 0
+        }
+
+        let callback: TranscriptionCallback = { progress in
+            let processedSeconds = Double(progress.windowId + 1) * 30.0
+            let percent = totalSeconds > 0 ? min(1.0, processedSeconds / totalSeconds) : 0
+            let text = progress.text
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.transcriptionProgress = percent
+                self.partialTranscript = text
+                if totalSeconds > 0 {
+                    self.statusMessage = "文字起こしを実行中... \(Int(percent * 100))%"
+                }
+            }
+            return nil
+        }
+
         do {
             let options = DecodingOptions(language: "ja", chunkingStrategy: .vad)
-            let results = try await pipe.transcribe(audioPath: tmpURL.path, decodeOptions: options)
+            let results = try await pipe.transcribe(
+                audioPath: tmpURL.path,
+                decodeOptions: options,
+                callback: callback
+            )
             transcript = results.map(\.text).joined(separator: "\n")
+            partialTranscript = ""
+            transcriptionProgress = 1.0
             statusMessage = "文字起こし完了（\(results.count) セグメント）"
             phase = .ready
         } catch {
