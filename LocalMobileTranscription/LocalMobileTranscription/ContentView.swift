@@ -56,6 +56,15 @@ struct ContentView: View {
                 ProgressView(value: whisper.transcriptionProgress)
                     .progressViewStyle(.linear)
             }
+            if whisper.isBusy {
+                Label {
+                    Text("処理中はアプリを開いたまま、画面を点けたままにしてください。バックグラウンドや画面ロックで処理が止まる場合があります。")
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                }
+                .font(.caption)
+                .foregroundStyle(.orange)
+            }
         }
     }
 
