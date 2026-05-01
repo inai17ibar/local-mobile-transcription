@@ -66,11 +66,29 @@
 
 ## 📌 次のステップ
 
-1. **Xcode プロジェクト初期化**（iOS 17+ ターゲット、SwiftUI、Swift Package Manager で WhisperKit 導入）
-2. **モデル DL オンボーディング UX 実装**（ADR-003 — Wi-Fi 接続中に約 1.5GB を初回 DL、失敗時リトライ）
-3. **MVP 実装** — 録音(AVFoundation) → セグメント分割(30 秒〜1 分) → 逐次転写(WhisperKit) → テキスト保存
-4. **検証** — `@Verification` で実機(iPhone 15 Pro) 動作確認、1 時間音声でのメモリ・処理時間計測
+1. **モデル DL オンボーディング UX 実装**（ADR-003 — Wi-Fi 接続中に約 1.5GB を初回 DL、失敗時リトライ）
+2. **MVP 実装** — 録音(AVFoundation) → セグメント分割(30 秒〜1 分) → 逐次転写(WhisperKit) → テキスト保存
+3. **検証** — `@Verification` で実機(iPhone 15 Pro) 動作確認、1 時間音声でのメモリ・処理時間計測
+4. **後追い修正**:
+   - `LocalMobileTranscriptionTests/` ターゲット追加（ロジック実装開始時）
+   - `Info.plist` の `CFBundleDisplayName` を削除し `InfoPlist.xcstrings` に一本化（日本語表示名 `ローカル文字起こし` の有効化）
+   - プロジェクトレベルの `IPHONEOS_DEPLOYMENT_TARGET = 26.4` を 17.x に統一（任意・実害なし）
 5. **将来 ADR 候補** — 話者識別アプローチ（VAD 簡易版 / sherpa-onnx 本格版）
+
+---
+
+## 🧪 検証コマンド
+
+シミュレータビルド（最小スコープの動作確認）:
+
+```sh
+xcodebuild -project LocalMobileTranscription/LocalMobileTranscription.xcodeproj \
+  -scheme LocalMobileTranscription \
+  -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+  build
+```
+
+実機検証は Xcode GUI で iPhone 15 Pro を接続 → ⌘R。Apple Developer 規約承認・Provisioning Profile が必要（`Signing & Capabilities` を参照）。
 
 ---
 

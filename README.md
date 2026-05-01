@@ -1,4 +1,28 @@
-# ai-dev-template 使い方ガイド
+# local-mobile-transcription
+
+iPhone(15 Pro 以降)上でローカル動作する音声文字起こしアプリ。会議の議事録を端末内で完結して残すことを目的とする。
+
+- **スタック**: Swift / SwiftUI(iOS 17+) + WhisperKit(Whisper large-v3-turbo) + AVFoundation
+- **方針・制約**: [AGENTS.md](AGENTS.md) と [ADR.md](ADR.md) を参照
+
+## Build & Run
+
+```sh
+# シミュレータでビルド
+xcodebuild -project LocalMobileTranscription/LocalMobileTranscription.xcodeproj \
+  -scheme LocalMobileTranscription \
+  -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+  build
+```
+
+または Xcode で `LocalMobileTranscription/LocalMobileTranscription.xcodeproj` を開いて ⌘R。
+
+> [!NOTE]
+> 初回起動時に Whisper モデル（約 1.5GB）の DL が必要になる予定です（[ADR-003](ADR.md#L100)、UX は未実装）。
+
+---
+
+# 以下は ai-dev-template 使い方ガイド
 
 AI ツール（Claude Code / GitHub Copilot / Cursor）と協調して開発するためのプロジェクトテンプレートです。
 このガイドを読めば、テンプレートの全機能を使いこなせます。
