@@ -1,0 +1,49 @@
+{
+  "description": "One-factor-at-a-time inference experiments based on the current WhisperKit baseline.",
+  "experiments": [
+    {
+      "name": "infer_language_ja_explicit",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "language=ja"
+      ]
+    },
+    {
+      "name": "infer_temperature_low",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "temperature=0.0"
+      ]
+    },
+    {
+      "name": "infer_temperature_mid",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "temperature=0.2"
+      ]
+    },
+    {
+      "name": "infer_beam_search",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "beam_size=5"
+      ]
+    },
+    {
+      "name": "infer_initial_prompt_hotwords",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "initial_prompt=domain-specific meeting context",
+        "hotwords=team glossary"
+      ]
+    },
+    {
+      "name": "infer_chunking_fixed_30s",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "chunking_strategy=fixed",
+        "segment_seconds=30"
+      ]
+    }
+  ]
+}

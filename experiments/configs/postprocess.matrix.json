@@ -1,0 +1,29 @@
+{
+  "description": "One-factor-at-a-time postprocess experiments.",
+  "experiments": [
+    {
+      "name": "post_remove_fillers",
+      "changes": [
+        "filler_removal=true"
+      ]
+    },
+    {
+      "name": "post_format_punctuation",
+      "changes": [
+        "punctuation_formatting=true"
+      ]
+    },
+    {
+      "name": "post_proper_noun_dictionary",
+      "changes": [
+        "proper_noun_correction=true"
+      ]
+    },
+    {
+      "name": "post_normalize_dates_numbers",
+      "changes": [
+        "number_date_normalization=true"
+      ]
+    }
+  ]
+}

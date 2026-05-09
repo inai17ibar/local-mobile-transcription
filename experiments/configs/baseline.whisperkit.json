@@ -1,0 +1,32 @@
+{
+  "name": "baseline_whisperkit_ios_current",
+  "source": {
+    "file": "LocalMobileTranscription/LocalMobileTranscription/ContentView.swift",
+    "line": 217
+  },
+  "transcription": {
+    "model": "WhisperKit.recommendedModels().default",
+    "language": "ja",
+    "chunking_strategy": "vad",
+    "temperature": null,
+    "beam_size": null,
+    "initial_prompt": null,
+    "hotwords": []
+  },
+  "preprocess": {
+    "sample_rate_hz": "original",
+    "channels": "original",
+    "normalization": "none",
+    "silence_removal": "none",
+    "noise_reduction": "none",
+    "segment_seconds": "source_audio"
+  },
+  "postprocess": {
+    "filler_removal": false,
+    "punctuation_formatting": false,
+    "proper_noun_correction": false,
+    "number_date_normalization": false
+  },
+  "dataset_manifest": "experiments/data/dataset.csv",
+  "output_dir": "experiments/results/runs/baseline_whisperkit_ios_current"
+}

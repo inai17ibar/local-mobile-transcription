@@ -1,0 +1,40 @@
+{
+  "description": "One-factor-at-a-time preprocessing experiments.",
+  "experiments": [
+    {
+      "name": "baseline_whisperkit_ios_current",
+      "inherits": "baseline.whisperkit.json",
+      "changes": []
+    },
+    {
+      "name": "pre_16khz_mono",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "sample_rate_hz=16000",
+        "channels=1"
+      ]
+    },
+    {
+      "name": "pre_loudnorm",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "normalization=loudnorm(I=-16,TP=-1.5,LRA=11)"
+      ]
+    },
+    {
+      "name": "pre_vad_split",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "silence_removal=ffmpeg_silenceremove",
+        "segment_seconds=15/30/45 comparison"
+      ]
+    },
+    {
+      "name": "pre_denoise",
+      "inherits": "baseline.whisperkit.json",
+      "changes": [
+        "noise_reduction=afftdn"
+      ]
+    }
+  ]
+}
